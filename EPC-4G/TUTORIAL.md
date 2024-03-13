@@ -200,7 +200,7 @@ git clone https://gitlab.eurecom.fr/oai/openairinterface5g.git
 ## Deploy OAI CN4G container
 
 :triangular_flag_on_post:
-Just docker-compose up -d WILL NOT WORK!
+Just `docker-compose up -d` WILL NOT WORK!
 All the following commands SHALL be run from the folder:
 
 `ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz`
