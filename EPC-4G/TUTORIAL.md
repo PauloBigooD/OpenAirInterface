@@ -47,8 +47,8 @@ sudo iptables -P FORWARD ACCEPT
 ---
 
 
-## :building_construction:RFSim4G EPC (MOD DEMO)
-
+## 🏗️RFSim4G EPC (MOD DEMO)
+`⚠️ - Below is the recommended mode`
 - [ ] Install and Build EPC
 
 ```
