@@ -9,7 +9,7 @@ set -e
 ## Work directory path is the current directory
 WORK_DIR=$PWD
 
-## Definindo o URL do repositório
+## Setting the repository URL
 repo_url="https://gitlab.eurecom.fr/oai/openairinterface5g.git"
 
 command="$1"
@@ -20,8 +20,8 @@ case "${command}" in
  --start   = Start EPC 4G
  --stop    = Stop EPC 4G  
  --eNB     = Start eNB 4G
- --eNB-sim = Start eNB 4G Simulada
- --ue-sim  = Start UE 4G Simulado 
+ --eNB-sim = Start eNB 4G Simulated
+ --ue-sim  = Start UE 4G Simulated 
  --logs    = EPC 4G logs"
 		;;
 	"--stop")
@@ -116,22 +116,22 @@ case "${command}" in
                 sudo docker compose ps -a
 		;;
         "--eNB")
-                ## eNodeB Monolithic (USRP) deployment
+                echo "Start eNodeB Monolithic (USRP) deployment"
                 cd $WORK_DIR/openairinterface5g/cmake_targets/ran_build/build/
                 sudo -E ./lte-softmodem -O ../../../ci-scripts/conf_files/enb.band7.100prb.usrpb200.tm1.conf
                 ;;
         "--eNB-sim")
-                ## eNodeB Simulator
+                echo "Start eNodeB Simulated"
                 cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
                 sudo docker compose up -d oai_enb0
 		;;
         "--ue-sim")
-                ## eNodeB Simulator
+                echo "Start UE Simulated"
                 cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
                 sudo docker compose up -d oai_ue0
                 ;;
         "--logs")
-                ## EPC logs
+                echo "EPC logs"
                 sudo docker exec -it rfsim4g-magma-mme /bin/bash -c "tail -f /var/log/mme.log"
                 ;;
 	*)
@@ -140,8 +140,8 @@ case "${command}" in
  --start   = Start EPC 4G
  --stop    = Stop EPC 4G  
  --eNB     = Start eNB 4G
- --eNB-sim = Start eNB 4G Simulada
- --ue-sim  = Start UE 4G Simulado
+ --eNB-sim = Start eNB 4G Simulated
+ --ue-sim  = Start UE 4G Simulated
  --logs    = EPC 4G logs  
  --install = Install all dependences for EPC 4G"
 		exit 127;
