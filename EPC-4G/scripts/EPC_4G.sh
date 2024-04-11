@@ -9,7 +9,7 @@ set -e
 ## Work directory path is the current directory
 WORK_DIR=$PWD
 
-## Setting the repository URL
+## Definindo o URL do repositório
 repo_url="https://gitlab.eurecom.fr/oai/openairinterface5g.git"
 
 command="$1"
@@ -20,8 +20,8 @@ case "${command}" in
  --start   = Start EPC 4G
  --stop    = Stop EPC 4G  
  --eNB     = Start eNB 4G
- --eNB-sim = Start eNB 4G Simulated
- --ue-sim  = Start UE 4G Simulated 
+ --eNB-sim = Start eNB 4G Simulada
+ --ue-sim  = Start UE 4G Simulado 
  --logs    = EPC 4G logs"
 		;;
 	"--stop")
@@ -98,40 +98,49 @@ case "${command}" in
                 ## Configuration of the packer forwarding
 		sudo sysctl net.ipv4.conf.all.forwarding=1
 		sudo iptables -P FORWARD ACCEPT
-		## Deploy and Configure Cassandra Database
+		echo "Deploy and Configure Cassandra Database"
                 cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
                 ## Un-deployment olds containers
                 sudo docker compose down
                 ## Deploy and Configure Cassandra Database
                 sudo docker compose up -d db_init
-                sleep 20
-                ## log init
-                sudo docker logs rfsim4g-db-init --follow
-                sleep 10
-                sudo docker rm rfsim4g-db-init
-                ## Deploy Magma-MME
-                sleep 5
-                sudo docker compose up -d magma_mme oai_spgwu trf_gen
-                ## Container list
-                sudo docker compose ps -a
+                ## Run docker command in background
+		sudo docker logs rfsim4g-db-init --follow &
+		## Monitor docker command output
+		while :
+		do
+		    ## Checks if the command output contains "OK"
+		    if sudo docker logs rfsim4g-db-init | grep -q "OK"; then
+		        echo "Status OK!"
+	                sudo docker rm rfsim4g-db-init
+			## Deploy Magma-MME
+        	        sleep 5
+               		sudo docker compose up -d magma_mme oai_spgwu trf_gen
+	                ## Container list
+			sleep 5
+	                sudo docker compose ps -a
+			break
+		    fi
+		    sleep 20
+		done
 		;;
         "--eNB")
-                echo "Start eNodeB Monolithic (USRP) deployment"
+                ## eNodeB Monolithic (USRP) deployment
                 cd $WORK_DIR/openairinterface5g/cmake_targets/ran_build/build/
                 sudo -E ./lte-softmodem -O ../../../ci-scripts/conf_files/enb.band7.100prb.usrpb200.tm1.conf
                 ;;
         "--eNB-sim")
-                echo "Start eNodeB Simulated"
+                ## eNodeB Simulator
                 cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
                 sudo docker compose up -d oai_enb0
 		;;
         "--ue-sim")
-                echo "Start UE Simulated"
+                ## eNodeB Simulator
                 cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
                 sudo docker compose up -d oai_ue0
                 ;;
         "--logs")
-                echo "EPC logs"
+                ## EPC logs
                 sudo docker exec -it rfsim4g-magma-mme /bin/bash -c "tail -f /var/log/mme.log"
                 ;;
 	*)
@@ -140,8 +149,8 @@ case "${command}" in
  --start   = Start EPC 4G
  --stop    = Stop EPC 4G  
  --eNB     = Start eNB 4G
- --eNB-sim = Start eNB 4G Simulated
- --ue-sim  = Start UE 4G Simulated
+ --eNB-sim = Start eNB 4G Simulada
+ --ue-sim  = Start UE 4G Simulado
  --logs    = EPC 4G logs  
  --install = Install all dependences for EPC 4G"
 		exit 127;
