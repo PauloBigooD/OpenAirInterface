@@ -124,72 +124,7 @@ case "${command}" in
             ## Run docker command in background
 		    sudo docker logs rfsim4g-db-init --follow &
 		    ## Monitor docker command output
-		    while :#!/bin/bash
-
-## Author:   Paulo Eduardo da Silva Junior - paulo.eduardo.093@ufrn.edu.br - Tel: +55 (84) 9 8808-0933
-## GitHub:   https://github.com/PauloBigooD
-## Linkedin: https://www.linkedin.com/in/paulo-eduardo-5a18b3174/
-
-set -e
-
-## Work directory path is the current directory
-WORK_DIR=$PWD
-
-## Definindo o URL do repositório
-repo_url="https://gitlab.eurecom.fr/oai/openairinterface5g.git"
-
-command="$1"
-case "${command}" in
-	"--help")
-		echo "Common Commands: 
- --install = Install all dependences for EPC 4G
- --start   = Start EPC 4G
- --stop    = Stop EPC 4G  
- --eNB     = Start eNB 4G
- --eNB-sim = Start eNB 4G Simulada
- --ue-sim  = Start UE 4G Simulado 
- --logs    = EPC 4G logs"
-		;;
-	"--stop")
-            cd $WORK_DIR/openairinterface5g/ci-scripts/yaml_files/4g_rfsimulator_fdd_05MHz
-            sudo docker compose down
-		;;
-	"--install")
-            echo "OAI RAN/UE 4G/5G Installation"
-            sudo add-apt-repository ppa:ettusresearch/uhd
-            sudo apt-get install libuhd-dev uhd-host -y
-            sudo apt-get install libuhd4.6.0 -y && \
-            sudo dpkg -i --force-overwrite /var/cache/apt/archives/libuhd4.6.0_4.6.0.0-0ubuntu1~focal1_amd64.deb || \
-            sudo dpkg -i --force-overwrite /var/cache/apt/archives/libuhd4.6.0_4.6.0.0-0ubuntu1~focal1_amd64.deb
-                
-            echo "Clone OpenAirInterface 5G RAN repository"
-            sudo apt-get install git
-            # Verificando se o repositório existe
-            if [ -d "openairinterface5g" ]; then
-                echo "Removendo o diretório existente 'openairinterface5g'..."
-                rm -rf openairinterface5g
-            fi
-
-            # Verifica novamente se o diretório foi removido com sucesso
-            if [ ! -d "openairinterface5g" ]; then
-                # Se não existir mais, clona o repositório
-                git clone "$repo_url"
-                cd $WORK_DIR/openairinterface5g
-                git checkout develop
-            else
-                echo "Erro: Não foi possível remover o diretório 'openairinterface5g'."
-            fi
-		
-            echo "Install OAI dependencies and Build OAI UE and eNB"
-            source oaienv
-            cd cmake_targets
-            sudo ./build_oai -I
-            sudo ./build_oai -I --install-optional-packages
-            sudo ./build_oai -w USRP --nrUE --eNB --UE -C --build-lib "telnetsrv enbscope uescope nrscope nrqtscope"
-                
-            echo "Uninstall Docker any such older versions before attempting to install a new version"
-            sudo apt-get remove docker docker-engine docker.io containerd runc 
-
+		    while :
 		    do
 		        ## Checks if the command output contains "OK"
 		        if sudo docker logs rfsim4g-db-init | grep -q "OK"; then
